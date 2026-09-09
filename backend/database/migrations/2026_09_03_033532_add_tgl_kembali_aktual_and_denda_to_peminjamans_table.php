@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('peminjamans', function (Blueprint $table) {
-            //
+        Schema::table('peminjaman', function (Blueprint $table) {
+            $table->date('tgl_kembali_aktual')->nullable();
+            $table->decimal('denda', 15, 2)->default(0);
         });
     }
 
