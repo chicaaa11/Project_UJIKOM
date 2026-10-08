@@ -6,16 +6,22 @@ use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PeminjamController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Middleware\IsAdmin;
-use App\Http\Middleware\IsPetugas;
-use App\Http\Middleware\IsPeminjam;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Guest Group
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// Logout
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
 // Admin Group
-Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role.admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
     // CRUD Alat
@@ -26,9 +32,8 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     Route::put('/alat/{id}', [AdminController::class, 'updateAlat'])->name('alat.update');
     Route::delete('/alat/{id}', [AdminController::class, 'destroyAlat'])->name('alat.destroy');
 
-    // CRUD User (Otomatis menghasilkan route: admin.users.index, admin.users.create, dll)
-    Route::resource('/users', UserController::class);
-    Route::get('/users-list', [UserController::class, 'index'])->name('users.index');
+    // CRUD User 
+    Route::resource('users', UserController::class);
 
     // CRUD Kategori
     Route::get('/kategori', [AdminController::class, 'indexKategori'])->name('kategori.index');
@@ -52,27 +57,19 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
 });
 
 // Petugas Group
-Route::middleware(['auth', IsPetugas::class])->prefix('petugas')->name('petugas.')->group(function () {
+Route::middleware(['auth', 'role.petugas'])->prefix('petugas')->name('petugas.')->group(function () {
     Route::get('/peminjaman', [PetugasController::class, 'indexPeminjaman'])->name('peminjaman.index');
     Route::post('/peminjaman/{id}/setujui', [PetugasController::class, 'setujuiPeminjaman'])->name('peminjaman.setujui');
-
-    // Pengembalian & Denda
+    Route::post('/peminjaman/{id}/tolak', [PetugasController::class, 'tolakPeminjaman'])->name('peminjaman.tolak');
+    Route::get('/pengembalian', [PetugasController::class, 'indexPengembalian'])->name('pengembalian.index');
     Route::post('/pengembalian/{id}', [PetugasController::class, 'prosesPengembalian'])->name('pengembalian.proses');
+    Route::get('/laporan', [PetugasController::class, 'laporan'])->name('laporan.index');
+    Route::get('/laporan/cetak', [PetugasController::class, 'cetakLaporan'])->name('laporan.cetak');
 });
 
 // Peminjam Group
-Route::middleware(['auth', IsPeminjam::class])->prefix('peminjam')->name('peminjam.')->group(function () {
-    // Katalog & Pengajuan
+Route::middleware(['auth', 'role.peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {
     Route::get('/katalog', [PeminjamController::class, 'katalogAlat'])->name('katalog');
     Route::post('/peminjaman/ajukan', [PeminjamController::class, 'ajukanPeminjaman'])->name('peminjaman.ajukan');
     Route::get('/riwayat', [PeminjamController::class, 'riwayatPeminjaman'])->name('riwayat');
 });
-
-// Guest Group
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-});
-
-// Logout
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');

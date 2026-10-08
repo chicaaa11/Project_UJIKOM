@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.admin' => IsAdmin::class, 
             'role.petugas' => IsPetugas::class, 
             'role.peminjam' => IsPeminjam::class, 
-         ]); 
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

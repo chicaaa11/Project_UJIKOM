@@ -3,6 +3,12 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\Peminjaman;
+use App\Models\Pengembalian;
+use App\Models\Alat;
+use App\Observers\PeminjamanObserver;
+use App\Observers\PengembalianObserver;
+use App\Observers\AlatObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +17,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        Peminjaman::observe(PeminjamanObserver::class);
+        Pengembalian::observe(PengembalianObserver::class);
+        Alat::observe(AlatObserver::class);
     }
 
     /**
