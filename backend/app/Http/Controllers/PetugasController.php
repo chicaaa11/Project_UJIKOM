@@ -94,6 +94,41 @@ class PetugasController extends Controller
         return view('petugas/pengembalian/index', compact('peminjamans', 'search'));
     }
 
+    // --- METHOD BARU YANG DITAMBAHKAN UNTUK MENGATASI ERROR ---
+    public function prosesPengembalian($id)
+    {
+        DB::beginTransaction();
+        try {
+            $peminjaman = Peminjaman::with('detailPinjams')->findOrFail($id);
+
+            if (!in_array($peminjaman->status, ['dipinjam', 'telat'])) {
+                return redirect()->back()->with('error', 'Status peminjaman tidak valid untuk dikembalikan.');
+            }
+
+            // Kembalikan stok alat
+            foreach ($peminjaman->detailPinjams as $detail) {
+                $alat = Alat::findOrFail($detail->alat_id);
+                $alat->stok += $detail->jumlah;
+                $alat->save();
+            }
+
+            // Catat ke tabel pengembalian (jika model Pengembalian digunakan)
+            Pengembalian::create([
+                'peminjaman_id' => $peminjaman->id,
+                'tgl_kembali'   => now(),
+            ]);
+
+            // Ubah status peminjaman menjadi selesai
+            $peminjaman->update(['status' => 'selesai']);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Pengembalian alat berhasil diproses dan stok telah diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
     public function laporan(Request $request)
     {
         $status = $request->input('status');
