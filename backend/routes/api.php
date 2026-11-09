@@ -5,14 +5,17 @@ use App\Http\Controllers\API\KategoriController;
 use App\Http\Controllers\API\AlatController; 
 use App\Http\Controllers\API\UserController;
 
+// Route Publik / Tamu (Belum login - TARUH DI LUAR auth:sanctum)
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);   
+Route::post('/login', [AuthController::class, 'login']); 
 
-Route::middleware('auth:sanctum')->group(function () {     
-    Route::get('/me', [AuthController::class, 'me']);     
+
+// Route yang Membutuhkan Autentikasi
+Route::middleware('auth:sanctum')->group(function () {    
+    Route::get('/me', [AuthController::class, 'me']);    
     Route::post('/logout', [AuthController::class, 'logout']); 
 
-    Route::middleware('role.admin')->group(function () {              
+    Route::middleware('role.admin')->group(function () {             
         Route::apiResource('kategori', KategoriController::class);
         Route::apiResource('alat', AlatController::class); 
         Route::get('/katalog', [AlatController::class, 'katalog']); 
@@ -27,26 +30,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/pengembalian/{pengembalian}', [PengembalianController::class, 'update']); 
         Route::delete('/pengembalian/{pengembalian}',[PengembalianController::class, 'destroy']);
         Route::get('/laporan-peminjaman', [LaporanController::class, 'index']);
-    });     
+    });    
     
-    Route::middleware('role.petugas')->group(function () {              
+    Route::middleware('role.petugas')->group(function () {             
         Route::post('/peminjaman/{peminjaman}/approve', [PeminjamanController::class, 'approve']);
         Route::post('/pengembalian', [PengembalianController::class, 'store']);
         Route::get('/laporan-peminjaman', [LaporanController::class, 'index']);
-    });     
+    });    
     
-    Route::middleware('role.peminjam')->group(function () {              
+    Route::middleware('role.peminjam')->group(function () {             
         Route::get('/katalog', [AlatController::class, 'katalog']);
         Route::post('/peminjaman', [PeminjamanController::class, 'store']);
         Route::get('/riwayat-pinjam', [PeminjamanController::class, 'riwayat']);
     }); 
-
-    // Route Tamu (Belum login)
-    Route::middleware(['guest'])->group(function () {
-        Route::get('/login', [\App\Http\Controllers\WEB\AuthController::class, 'showLoginForm'])->name('login');
-        Route::post('/login', [\App\Http\Controllers\WEB\AuthController::class, 'login']);
-
-        Route::get('/register', [\App\Http\Controllers\WEB\AuthController::class, 'showRegisterForm'])->name('register');
-        Route::post('/register', [\App\Http\Controllers\WEB\AuthController::class, 'register'])->name('register.proses');
-    });
 });

@@ -16,8 +16,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 
-    Route::get('/register', [\App\Http\Controllers\AuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register'])->name('register.proses');
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.proses');
 });
 
 // Logout
@@ -74,9 +74,6 @@ Route::middleware(['auth', 'role.petugas'])->prefix('petugas')->name('petugas.')
 Route::middleware(['auth', 'role.peminjam'])->prefix('peminjam')->name('peminjam.')->group(function () {
     Route::get('/katalog', [PeminjamController::class, 'katalogAlat'])->name('katalog');
     Route::post('/peminjaman/ajukan', [PeminjamController::class, 'ajukanPeminjaman'])->name('peminjaman.ajukan');
-    Route::get('/riwayat', [PeminjamController::class, 'riwayatPeminjaman'])->name('riwayat');
-
-    // Riwayat & Pengembalian
     Route::get('/riwayat', [PeminjamController::class, 'riwayatPeminjaman'])->name('riwayat');
     Route::post('/pengembalian/{id}/ajukan', [PeminjamController::class, 'ajukanPengembalian'])->name('pengembalian.ajukan');
 });

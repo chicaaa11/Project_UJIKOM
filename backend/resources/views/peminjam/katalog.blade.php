@@ -40,7 +40,7 @@
         @csrf
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            @forelse($alats as $alat)
+            @forelse($alat as $alat)
                 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                     <div class="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center text-gray-400 text-3xl overflow-hidden">
                         @if($alat->gambar)

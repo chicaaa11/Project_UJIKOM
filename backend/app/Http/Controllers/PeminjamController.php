@@ -21,7 +21,8 @@ class PeminjamController extends Controller
         $search     = $request->input('search');
         $kategoriId = $request->input('kategori');
 
-        $alats = Alat::with('kategori')
+        // Ubah variabel dari $alats menjadi $alat agar sinkron dengan compact()
+        $alat = Alat::with('kategori')
             ->when($search, fn($q) => $q->where('nama_alat', 'like', "%{$search}%"))
             ->when($kategoriId, fn($q) => $q->where('kategori_id', $kategoriId))
             ->orderBy('nama_alat')
@@ -41,7 +42,7 @@ class PeminjamController extends Controller
             'tgl_pinjam'        => 'required|date|after_or_equal:today',
             'tgl_kembali_plan'  => 'required|date|after:tgl_pinjam',
             'alat_id'           => 'required|array|min:1',
-            'alat_id.*'         => 'required|exists:alat,id', // <-- SUDAH DIPERBAIKI (alats -> alat)
+            'alat_id.*'         => 'required|exists:alat,id', 
             'jumlah'            => 'required|array',
             'jumlah.*'          => 'required|integer|min:1',
         ], [
